@@ -1,0 +1,10 @@
+{
+  "name": "minororange/proxy",
+  "type": "library",
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "Minor\\Proxy\\": "src/"
+    }
+  }
+}
