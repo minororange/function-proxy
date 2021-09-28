@@ -2,8 +2,10 @@
 
 require './vendor/autoload.php';
 
-use Minor\Proxy\Main\InterceptorInterface;
-use Minor\Proxy\Main\MethodInterface;
+use Minor\Proxy\Proxy\InterceptorInterface;
+use Minor\Proxy\Proxy\MethodInterface;
+use Minor\Proxy\Proxy\Proxy;
+use Minor\Proxy\Proxy\UndefinedInterceptorException;
 
 
 // 具体业务逻辑类
@@ -11,6 +13,8 @@ class UserQuery
 {
     public function queryUserName($id)
     {
+        echo "执行queryUserName\n";
+
         return "我是用户ID为{$id}的用户名";
     }
 }
@@ -42,7 +46,13 @@ class LogInterceptor implements InterceptorInterface
     }
 }
 
+Proxy::setGlobalInterceptor(new LogInterceptor());
+
 /** @var UserQuery $proxy */
-$proxy = \Minor\Proxy\Main\Proxy::create(new UserQuery(), new LogInterceptor());
+try {
+    $proxy = Proxy::create(new UserQuery());
+} catch (UndefinedInterceptorException $e) {
+    die($e->getMessage());
+}
 
 var_dump($proxy->queryUserName(10086));

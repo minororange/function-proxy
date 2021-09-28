@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Minor\Proxy\Main;
+namespace Minor\Proxy\Proxy;
 
 
 interface MethodInterface
