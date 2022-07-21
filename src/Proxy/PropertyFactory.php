@@ -6,5 +6,5 @@ namespace Minor\Proxy\Proxy;
 interface PropertyFactory
 {
 
-    public function create();
+    public function create($propertyClass);
 }

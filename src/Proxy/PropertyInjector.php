@@ -11,14 +11,14 @@ class PropertyInjector
         $properties = $reflectionClass->getProperties();
 
         foreach ($properties as $property) {
-            if ($this->setPropertyByAttribute($property, $class)) {
-                continue;
-            }
             $type = $property->getType();
             if (null === $type) {
                 continue;
             }
             $name = $type->getName();
+            if ($this->setPropertyByAttribute($property, $class, $name)) {
+                continue;
+            }
 
 
             $propertyObject = new $name(); //todo di
@@ -32,16 +32,17 @@ class PropertyInjector
      * @param \ReflectionProperty $property
      * @param $class
      */
-    protected function setPropertyByAttribute(\ReflectionProperty $property, $class): bool
+    protected function setPropertyByAttribute(\ReflectionProperty $property, $class, $propertyClass): bool
     {
         $attributes = $property->getAttributes();
 
         if (count($attributes) > 0) {
+
             $factory = $attributes[0]->newInstance(); //todo di
             if ($factory instanceof PropertyFactory) {
-                $this->setProperty($property, $class, $factory->create());
+                $this->setProperty($property, $class, $factory->create($propertyClass));
             }
-            
+
             return true;
         }
 
