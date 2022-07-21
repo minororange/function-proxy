@@ -6,7 +6,6 @@ namespace Minor\Proxy\Proxy;
 
 class Proxy
 {
-
     private static $globalInterceptor;
 
     /**
@@ -19,6 +18,11 @@ class Proxy
     private $interceptor;
 
     /**
+     * @var PropertyInjector;
+     */
+    private $propertyInjector;
+
+    /**
      * Proxy constructor.
      * @param $class
      * @param InterceptorInterface|null $interceptor
@@ -26,7 +30,8 @@ class Proxy
      */
     public function __construct($class, InterceptorInterface $interceptor = null)
     {
-        $this->class = $class;
+        $this->propertyInjector = new PropertyInjector();
+        $this->class = $this->propertyInjector->inject($class);
         $this->interceptor = $interceptor ?? self::getGlobalInterceptor();
     }
 
