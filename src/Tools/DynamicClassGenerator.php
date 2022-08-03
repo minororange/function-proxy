@@ -7,26 +7,26 @@ use Minor\Proxy\Proxy\CallableInterface;
 class DynamicClassGenerator
 {
 
-    public static function create($class, CallableInterface $callable)
+    public function create($class, CallableInterface $callable)
     {
         $ref = new \ReflectionClass($class);
-        $functionCode = self::getFunctionCodeByRef($ref, $class);
+        $functionCode = $this->getFunctionCodeByRef($ref, $class);
         if ($ref->isInterface()) {
-            return self::createClass($class, $callable, $functionCode, 'implements');
+            return $this->createClass($class, $callable, $functionCode, 'implements');
         }
 
         if ($ref->isAbstract()) {
-            return self::createClass($class, $callable, $functionCode, 'extends');
+            return $this->createClass($class, $callable, $functionCode, 'extends');
         }
 
         return new $class;
     }
 
-    private static function createClass($class, $callable, $functionCode, $extendName)
+    private function createClass($class, $callable, $functionCode, $extendName)
     {
         $classSegment = explode('\\', $class);
         $className = end($classSegment) . '_DynamicCreated';
-        $code = self::getClassCode($className, $class, $extendName, $functionCode);
+        $code = $this->getClassCode($className, $class, $extendName, $functionCode);
 
         $o = ClassLoader::loadClass($code, $className);
 
@@ -40,7 +40,7 @@ class DynamicClassGenerator
      * @param $class
      * @return string
      */
-    private static function getClassCode(string $className, $class, $extendName, $functionCode): string
+    private function getClassCode(string $className, $class, $extendName, $functionCode): string
     {
         return
             "class {$className} {$extendName} \\$class" . '{
@@ -52,20 +52,20 @@ class DynamicClassGenerator
     }
 
 
-    private static function getFunctionCode($method, $argsName, $class)
+    private function getFunctionCode($method, $argsName, $class)
     {
         $argsName = implode(',', $argsName);
         return "function $method($argsName)" . '{return $this->callable->call("' . $class . '","' . $method . '",func_get_args());}';
     }
 
-    private static function getFunctionCodeByRef(\ReflectionClass $ref, $class)
+    private function getFunctionCodeByRef(\ReflectionClass $ref, $class)
     {
         $methods = $ref->getMethods();
 
         $code = '';
 
         foreach ($methods as $method) {
-            $code .= self::getFunctionCode(
+            $code .= $this->getFunctionCode(
                 $method->getName(),
                 array_map(function ($item) {
                     return '$' . $item->getName();

@@ -2,8 +2,18 @@
 
 namespace Minor\Proxy\Proxy;
 
+use Minor\Proxy\Di\ObjectFactory;
+
 class PropertyInjector
 {
+
+    private ObjectFactory $objectFactory;
+
+    public function __construct()
+    {
+        $this->objectFactory = new ObjectFactory();
+    }
+
     public function inject($class)
     {
         $reflectionClass = new \ReflectionClass($class);
@@ -21,7 +31,7 @@ class PropertyInjector
             }
 
 
-            $propertyObject = new $name(); //todo di
+            $propertyObject = $this->objectFactory->create($name);
             $this->setProperty($property, $class, $propertyObject);
         }
 
@@ -37,8 +47,8 @@ class PropertyInjector
         $attributes = $property->getAttributes();
 
         if (count($attributes) > 0) {
-
-            $factory = $attributes[0]->newInstance(); //todo di
+            $name = $attributes[0]->getName();
+            $factory = $this->objectFactory->create($name);
             if ($factory instanceof PropertyFactory) {
                 $this->setProperty($property, $class, $factory->create($propertyClass));
             }

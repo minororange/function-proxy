@@ -12,8 +12,15 @@ use Minor\Proxy\Tools\DynamicClassGenerator;
 #[Attribute]
 class RpcProperty implements PropertyFactory
 {
+    private DynamicClassGenerator $classGenerator;
+
+    public function __construct(DynamicClassGenerator $classGenerator)
+    {
+        $this->classGenerator = $classGenerator;
+    }
+
     public function create($propertyClass)
     {
-        return DynamicClassGenerator::create($propertyClass, new RpcProxy());
+        return $this->classGenerator->create($propertyClass, new RpcProxy());
     }
 }
