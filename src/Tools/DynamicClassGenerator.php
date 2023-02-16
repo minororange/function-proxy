@@ -52,10 +52,14 @@ class DynamicClassGenerator
     }
 
 
-    private function getFunctionCode($method, $argsName, $class)
+    private function getFunctionCode($method, $argsName, $class, $returnType = null)
     {
         $argsName = implode(',', $argsName);
-        return "function $method($argsName)" . '{return $this->callable->call("' . $class . '","' . $method . '",func_get_args());}';
+        $functionCode = "function $method($argsName)";
+        if (!is_null($returnType)) {
+            $functionCode .= ": \\{$returnType} ";
+        }
+        return $functionCode . '{return $this->callable->call("' . $class . '","' . $method . '",func_get_args());}';
     }
 
     private function getFunctionCodeByRef(\ReflectionClass $ref, $class)
@@ -65,12 +69,15 @@ class DynamicClassGenerator
         $code = '';
 
         foreach ($methods as $method) {
+            $reflectionType = $method->getReturnType();
+
             $code .= $this->getFunctionCode(
                 $method->getName(),
                 array_map(function ($item) {
                     return '$' . $item->getName();
                 }, $method->getParameters()),
-                $class
+                $class,
+                is_null($reflectionType) ? null : $reflectionType->getName()
             );
         }
 
